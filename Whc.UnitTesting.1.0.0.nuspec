@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>Whc.UnitTesting</id>
+        <version>1.0.0</version>
+        <title>Unit Testing Validator for CSLA</title>
+        <authors>Dave Kehring</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Provides a set of classes for easily writing unit tests to check common business rules created in CSLA business objects.</description>
+        <copyright>2013 White Horse Consulting, Inc.</copyright>
+        <tags>unit testing, mstest, nunit, csla</tags>
+    </metadata>
+    <files />
+</package>

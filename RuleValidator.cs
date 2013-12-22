@@ -291,14 +291,17 @@ namespace Whc.UnitTesting
                 String.Format("{0}@x.x", new string('x', maxLength - 5)));
         }
 
-        public static void CheckEnumRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, T validValue, T emptyValue, bool required)
+        public static void CheckEnumRules<TEnum>(T obj, Expression<Func<T, object>> propertyLambdaExpression, TEnum validValue, TEnum emptyValue, bool required)
         {
             PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
             CheckEnumRules(obj, reflectedPropertyInfo.Name, validValue, emptyValue, required);
         }
 
-        public static void CheckEnumRules(T obj, string propertyName, T validValue, T emptyValue, bool required)
+        public static void CheckEnumRules<TEnum>(T obj, string propertyName, TEnum validValue, TEnum emptyValue, bool required)
         {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckEnumRules] : The object must be valid before the rule can be checked.");
+
             Utilities.CallByName(obj, propertyName, CallType.Set, emptyValue);
             Assert.IsFalse(obj.IsValid, String.Format("[{0}] Object should not be valid.", propertyName));
             Utilities.CallByName(obj, propertyName, CallType.Set, validValue);
@@ -327,6 +330,9 @@ namespace Whc.UnitTesting
 
         public static void CheckGuidRules(T obj, string propertyName, bool required)
         {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckGuidRules] : The object must be valid before the rule can be checked.");
+
             if (required)
             {
                 Utilities.CallByName(obj, propertyName, CallType.Set, Guid.Empty);
@@ -350,6 +356,9 @@ namespace Whc.UnitTesting
 
         public static void CheckObjectRequiredRules(T obj, string propertyName, T nonEmptyValue, bool required)
         {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckObjectRequiredRules] : The object must be valid before the rule can be checked.");
+
             if (required)
             {
                 Utilities.CallByName(obj, propertyName, CallType.Set, new object[] { null });
@@ -374,6 +383,9 @@ namespace Whc.UnitTesting
 
         public static void CheckIntMinMaxRules(T obj, string propertyName, int min, int max)
         {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckIntMinMaxRules] : The object must be valid before the rule can be checked.");
+
             if (min != int.MinValue)
             {
                 Utilities.CallByName(obj, propertyName, CallType.Set, min - 1);
@@ -394,6 +406,9 @@ namespace Whc.UnitTesting
 
         public static void CheckIntMinExclusiveRules(T obj, string propertyName, int min)
         {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckIntMinExclusiveRules] : The object must be valid before the rule can be checked.");
+
             if (min != int.MinValue)
             {
                 Utilities.CallByName(obj, propertyName, CallType.Set, min - 1);
@@ -411,6 +426,9 @@ namespace Whc.UnitTesting
 
         public static void CheckIntMaxExclusiveRules(T obj, string propertyName, int max)
         {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckEnumRules] : The object must be valid before the rule can be checked.");
+
             if (max != int.MaxValue)
             {
                 Utilities.CallByName(obj, propertyName, CallType.Set, max + 1);
@@ -434,6 +452,9 @@ namespace Whc.UnitTesting
 
         public static void CheckDoubleMinMaxRules(T obj, string propertyName, double min, double max)
         {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckDoubleMinMaxRules] : The object must be valid before the rule can be checked.");
+
             if (Math.Abs(min - double.MinValue) > double.Epsilon)
             {
                 Utilities.CallByName(obj, propertyName, CallType.Set, min - 1);
@@ -460,6 +481,9 @@ namespace Whc.UnitTesting
 
         public static void CheckDecimalMinMaxRules(T obj, string propertyName, decimal min, decimal max)
         {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckDecimalMinMaxRules] : The object must be valid before the rule can be checked.");
+
             if (min != decimal.MinValue)
             {
                 Utilities.CallByName(obj, propertyName, CallType.Set, min - 1);
@@ -520,6 +544,9 @@ namespace Whc.UnitTesting
 
         public static void CheckByteMinMaxRules(T obj, string propertyName, byte min, byte max)
         {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckByteMinMaxRules] : The object must be valid before the rule can be checked.");
+
             byte val;
             if (min != byte.MinValue)
             {

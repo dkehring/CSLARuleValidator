@@ -41,7 +41,6 @@ public class OrderTests : TestBase
     public void SiteNumber_MinMaxValue()
     {
         var obj = NewObject();
-
         RuleValidator&lt;Order&gt;.CheckIntMinMaxRules(obj, x =&gt; x.SiteNumber, 1, int.MaxValue);
     }
 }
@@ -49,7 +48,7 @@ public class OrderTests : TestBase
 
 <p>The method CheckIntMinMaxRules will check the bounds of the rules for the given property (in this case SiteNumber) and throw Asserts if the rule fails.</p>
 
-<h3>Additional Test Methods</h3>
+<h3>Additional Rule Validation Methods</h3>
 
 <ul>
 <li>CheckBitmapRequired</li>
@@ -76,29 +75,15 @@ public class OrderTests : TestBase
 <li>CheckStringRequired</li>
 </ul>
 
-<h2>New Business Rules</h2>
-
-<p>This project also introduces a couple of new CSLA-style business rules not provided in the core framework but ones that I find I use a lot:</p>
-
-<ul>
-<li>DateOrder</li>
-<li>DateRange</li>
-<li>EnumRequired</li>
-<li>EnumValid</li>
-<li>GuidRequired</li>
-<li>SmartDateRequired</li>
-</ul>
-
 <h1>Integration Tests</h1>
 
 <p>The way I like to do integration testing against a database is to wrap start with an empty database (with the exception of a User record for authentication and authorization). Each integration test is wrapped in a transaction that is rolled back at the end of the test, regardless of whether the test passes or fails. This ensures that I leave the database unchanged after each test but requires that I set up the data I need for each test.</p>
 
-<p>To support integration tests, simply inherit your test class from the base class IntegrationTest:</p>
+<p>To support integration tests, simply inherit your test class from the base class IntegrationTest:<br/>
+        using Whc.Csla;</p>
 
-<pre><code>using Whc.UnitTesting;
-
-[TestClass]
-public class OrderTests : IntegrationTest
+<pre><code>[TestClass]
+public class OrderTests : TransactionalTest
 {
 }
 </code></pre>

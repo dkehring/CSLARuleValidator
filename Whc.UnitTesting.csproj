@@ -86,12 +86,6 @@
     <Compile Include="MSTest\TestBase.cs" />
     <Compile Include="MSTest\TransactionalTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rules\DateOrder.cs" />
-    <Compile Include="Rules\DateRange.cs" />
-    <Compile Include="Rules\EnumRequired.cs" />
-    <Compile Include="Rules\EnumValid.cs" />
-    <Compile Include="Rules\GuidRequired.cs" />
-    <Compile Include="Rules\SmartDateRequired.cs" />
     <Compile Include="RuleValidator.cs" />
     <Compile Include="NUnit\TestBase.cs" />
     <Compile Include="NUnit\TransactionalTest.cs" />

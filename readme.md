@@ -45,7 +45,7 @@ Given an object that inherits from CSAL.Core.BusinessBase<T>:
 
 The method CheckIntMinMaxRules will check the bounds of the rules for the given property (in this case SiteNumber) and throw Asserts if the rule fails.
 
-###Additional Test Methods###
+###Additional Rule Validation Methods###
 
 
 
@@ -72,26 +72,14 @@ The method CheckIntMinMaxRules will check the bounds of the rules for the given 
 - CheckStringMaxLength
 - CheckStringRequired
 
-##New Business Rules##
-
-This project also introduces a couple of new CSLA-style business rules not provided in the core framework but ones that I find I use a lot:
-
-- DateOrder
-- DateRange
-- EnumRequired
-- EnumValid
-- GuidRequired
-- SmartDateRequired
-
 #Integration Tests#
 The way I like to do integration testing against a database is to wrap start with an empty database (with the exception of a User record for authentication and authorization). Each integration test is wrapped in a transaction that is rolled back at the end of the test, regardless of whether the test passes or fails. This ensures that I leave the database unchanged after each test but requires that I set up the data I need for each test.
 
 To support integration tests, simply inherit your test class from the base class IntegrationTest:
-
-    using Whc.UnitTesting;
+        using Whc.Csla;
 
     [TestClass]
-    public class OrderTests : IntegrationTest
+    public class OrderTests : TransactionalTest
     {
 	}
     

@@ -1,0 +1,104 @@
+﻿<h1>CSLA Business Rule Validator for Unit Testing</h1>
+
+<p>Provides utility classes for unit testing CSLA business rules as well as base classes for integration testing and additional business rules not found in the common rules provided by CSLA.</p>
+
+<h2>Base Classes</h2>
+
+<p><strong>TestBase</strong> - a template class for all test classes. Sets up virtual OnInitialize and OnCleaup methods.</p>
+
+<p><strong>TransationalTest</strong> - wraps a test in a transaction that will automatically rollback any database changes. Use this for integration tests that interact with the database.</p>
+
+<p><em>There are MSUnit and NUnit flavors of each of the above base classes.</em></p>
+
+<h2>RuleValidator</h2>
+
+<p>The <strong>RuleValidator</strong> class is the main class used to validate business rules. </p>
+
+<h3>Basic usage</h3>
+
+<p>Given an object that inherits from CSAL.Core.BusinessBase<T>:</p>
+
+<pre><code>using Whc.UnitTesting;
+
+[TestClass]
+public class OrderTests : TestBase
+{
+    internal static Order NewObject()
+    {
+        var obj = Order.NewOrder();
+        // Set up the properties of the object so that it is valid.
+        obj.SiteNumber = 23;
+        obj.DeliveryExceptionId = 1;
+        obj.DeliveryRouteNumber = 1;
+        obj.OrderDate = DateTime.Now;
+        obj.ShipDate = DateTime.Now;
+        obj.DeliveryDateTime = DateTime.Now;
+        obj.OriginalSiteNumber = 2;
+        return obj;
+    }
+
+    [TestMethod]
+    public void SiteNumber_MinMaxValue()
+    {
+        var obj = NewObject();
+
+        RuleValidator&lt;Order&gt;.CheckIntMinMaxRules(obj, x =&gt; x.SiteNumber, 1, int.MaxValue);
+    }
+}
+</code></pre>
+
+<p>The method CheckIntMinMaxRules will check the bounds of the rules for the given property (in this case SiteNumber) and throw Asserts if the rule fails.</p>
+
+<h3>Additional Test Methods</h3>
+
+<ul>
+<li>CheckBitmapRequired</li>
+<li>CheckByteMinMaxRules</li>
+<li>CheckByteRequired</li>
+<li>CheckDecimalMinMaxRules</li>
+<li>CheckDecimalRequired</li>
+<li>CheckDoubleMinMaxRules</li>
+<li>CheckDoubleRequired</li>
+<li>CheckDecimalMinMaxRules</li>
+<li>CheckDoubleRequired</li>
+<li>CheckEmailMaxLength</li>
+<li>CheckEmailRequired</li>
+<li>CheckEnumRules<TEnum></li>
+<li>CheckGuidRules</li>
+<li>CheckIntMaxExclusive</li>
+<li>CheckIntMinExclusive</li>
+<li>CheckIntMinMaxRules</li>
+<li>CheckIntRequired</li>
+<li>CheckNumberRequired</li>
+<li>CheckObjectRequired</li>
+<li>CheckSmartDateRequired</li>
+<li>CheckStringMaxLength</li>
+<li>CheckStringRequired</li>
+</ul>
+
+<h2>New Business Rules</h2>
+
+<p>This project also introduces a couple of new CSLA-style business rules not provided in the core framework but ones that I find I use a lot:</p>
+
+<ul>
+<li>DateOrder</li>
+<li>DateRange</li>
+<li>EnumRequired</li>
+<li>EnumValid</li>
+<li>GuidRequired</li>
+<li>SmartDateRequired</li>
+</ul>
+
+<h1>Integration Tests</h1>
+
+<p>The way I like to do integration testing against a database is to wrap start with an empty database (with the exception of a User record for authentication and authorization). Each integration test is wrapped in a transaction that is rolled back at the end of the test, regardless of whether the test passes or fails. This ensures that I leave the database unchanged after each test but requires that I set up the data I need for each test.</p>
+
+<p>To support integration tests, simply inherit your test class from the base class IntegrationTest:</p>
+
+<pre><code>using Whc.UnitTesting;
+
+[TestClass]
+public class OrderTests : IntegrationTest
+{
+}
+</code></pre>

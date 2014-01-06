@@ -77,9 +77,11 @@ public class OrderTests : TestBase
 
 <h1>Integration Tests</h1>
 
-<p>The way I like to do integration testing against a database is to wrap start with an empty database (with the exception of a User record for authentication and authorization). Each integration test is wrapped in a transaction that is rolled back at the end of the test, regardless of whether the test passes or fails. This ensures that I leave the database unchanged after each test but requires that I set up the data I need for each test.</p>
+<p>The way I like to do integration testing against a database is to start with an empty database (with the exception of a User record for authentication and authorization). Each integration test is wrapped in a transaction that is rolled back at the end of the test, regardless of whether the test passes or fails. </p>
 
-<p>To support integration tests, simply inherit your test class from the base class IntegrationTest:<br/>
+<p>This ensures that I leave the database unchanged after each test but requires that I set up the data I need for each test.</p>
+
+<p>To support integration tests, simply inherit your test class from the base class TransactionalTest:<br/>
         using Whc.Csla;</p>
 
 <pre><code>[TestClass]

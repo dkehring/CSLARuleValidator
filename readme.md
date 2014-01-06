@@ -73,11 +73,37 @@ The method CheckIntMinMaxRules will check the bounds of the rules for the given 
 - CheckStringRequired
 
 #Integration Tests#
-The way I like to do integration testing against a database is to wrap start with an empty database (with the exception of a User record for authentication and authorization). Each integration test is wrapped in a transaction that is rolled back at the end of the test, regardless of whether the test passes or fails. This ensures that I leave the database unchanged after each test but requires that I set up the data I need for each test.
+The way I like to do integration testing against a database is to start with an empty database (with the exception of a User record for authentication and authorization). Each integration test is wrapped in a transaction that is rolled back at the end of the test, regardless of whether the test passes or fails. 
 
-To support integration tests, simply inherit your test class from the base class IntegrationTest:
-        using Whc.Csla;
+    using System.Transactions;
+    
+    namespace WHC.UnitTesting.MSTest
+    {
+	    public class TransactionalTest : TestBase
+	    {
+		    protected TransactionScope _ts;
+		    
+		    protected override void OnInitialize()
+		    {
+			    base.OnInitialize();
+			    _ts = new TransactionScope(TransactionScopeOption.Required);
+		    }
+		    
+		    public override void OnCleanup()
+		    {
+			    _ts.Dispose();
+			    base.OnCleanup();
+		    }
+	    }
+    }
+   
 
+The transaction ensures that I leave the database unchanged after each test but requires that I set up the data I need for each test.
+
+To support integration tests, simply inherit your test class from the base class TransactionalTest:
+        
+    using Whc.Csla;
+    
     [TestClass]
     public class OrderTests : TransactionalTest
     {

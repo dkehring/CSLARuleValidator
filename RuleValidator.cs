@@ -6,7 +6,6 @@ using System.Text;
 using Csla;
 using Csla.Core;
 using Csla.Reflection;
-using Csla.Rules;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Whc.UnitTesting
@@ -15,7 +14,7 @@ namespace Whc.UnitTesting
     {
         public static bool IsRuleBroken(T obj, string propertyName)
         {
-            BrokenRule rule = obj.BrokenRulesCollection.GetFirstBrokenRule(propertyName);
+            var rule = obj.BrokenRulesCollection.GetFirstBrokenRule(propertyName);
             return (rule != null);
         }
 
@@ -53,6 +52,46 @@ namespace Whc.UnitTesting
             // The string is required so we should have a broken rule.
             Assert.IsFalse(IsRuleBroken(obj, propertyName),
                 String.Format("[SmartDateRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].", propertyName));
+        }
+
+        public static void CheckDateRequired(T obj, Expression<Func<T, object>> propertyLambdaExpression, bool isRequired)
+        {
+            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
+            CheckDateRequired(obj, reflectedPropertyInfo.Name, isRequired);
+        }
+
+        public static void CheckDateRequired(T obj, string propertyName, bool isRequired)
+        {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[DateRequired] : The object must be valid before the rule can be checked.");
+
+            Utilities.CallByName(obj, propertyName, CallType.Set, DateTime.MinValue);
+
+            if (isRequired)
+            {
+                // The date is required so we should have a broken rule.
+                Assert.IsTrue(IsRuleBroken(obj, propertyName),
+                    String.Format(
+                        "[DateRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].",
+                        propertyName));
+            }
+            else
+            {
+                // The date is NOT required so we should NOT have a broken rule.
+                Assert.IsFalse(IsRuleBroken(obj, propertyName),
+                    String.Format(
+                        "[DateRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].",
+                        propertyName));
+            }
+
+            // Check what happens when the date value is NOT empty.
+            Utilities.CallByName(obj, propertyName, CallType.Set,
+                DateTime.Now.Date);
+            // The string is required so we should have a broken rule.
+            Assert.IsFalse(IsRuleBroken(obj, propertyName),
+                String.Format(
+                    "[DateRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].",
+                    propertyName));
         }
 
         public static void CheckEmailRequired(T obj, Expression<Func<T, object>> propertyLambdaExpression, bool isRequired)

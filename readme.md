@@ -48,7 +48,7 @@ The method CheckIntMinMaxRules will check the bounds of the rules for the given 
 ###Additional Rule Validation Methods###
 
 
-
+- CheckDateRequired - :new:
 - CheckBitmapRequired
 - CheckByteMinMaxRules
 - CheckByteRequired

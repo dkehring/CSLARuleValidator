@@ -12,11 +12,7 @@ namespace Whc.UnitTesting
 {
     public class RuleValidator<T> where T : BusinessBase
     {
-        public static bool IsRuleBroken(T obj, string propertyName)
-        {
-            var rule = obj.BrokenRulesCollection.GetFirstBrokenRule(propertyName);
-            return (rule != null);
-        }
+        #region [SmartDate]
 
         public static void CheckSmartDateRequired(T obj, Expression<Func<T, object>> propertyLambdaExpression, bool isRequired, SmartDate.EmptyValue emptyValue)
         {
@@ -38,21 +34,25 @@ namespace Whc.UnitTesting
             {
                 // The string is required so we should have a broken rule.
                 Assert.IsTrue(IsRuleBroken(obj, propertyName),
-                    String.Format("[SmartDateRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].", propertyName));
+                    string.Format("[SmartDateRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].", propertyName));
             }
             else
             {
                 // The string is NOT required so we should NOT have a broken rule.
                 Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                    String.Format("[SmartDateRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].", propertyName));
+                    string.Format("[SmartDateRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].", propertyName));
             }
 
             // Check what happens when the string value is NOT empty.
             Utilities.CallByName(obj, propertyName, CallType.Set, DateTime.Now.Date.ToString(CultureInfo.InvariantCulture));
             // The string is required so we should have a broken rule.
             Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                String.Format("[SmartDateRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].", propertyName));
+                string.Format("[SmartDateRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].", propertyName));
         }
+
+        #endregion
+
+        #region [Date]
 
         public static void CheckDateRequired(T obj, Expression<Func<T, object>> propertyLambdaExpression, bool isRequired)
         {
@@ -71,7 +71,7 @@ namespace Whc.UnitTesting
             {
                 // The date is required so we should have a broken rule.
                 Assert.IsTrue(IsRuleBroken(obj, propertyName),
-                    String.Format(
+                    string.Format(
                         "[DateRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].",
                         propertyName));
             }
@@ -79,7 +79,7 @@ namespace Whc.UnitTesting
             {
                 // The date is NOT required so we should NOT have a broken rule.
                 Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                    String.Format(
+                    string.Format(
                         "[DateRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].",
                         propertyName));
             }
@@ -89,10 +89,14 @@ namespace Whc.UnitTesting
                 DateTime.Now.Date);
             // The string is required so we should have a broken rule.
             Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                String.Format(
+                string.Format(
                     "[DateRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].",
                     propertyName));
         }
+
+        #endregion
+
+        #region [Email]
 
         public static void CheckEmailRequired(T obj, Expression<Func<T, object>> propertyLambdaExpression, bool isRequired)
         {
@@ -107,6 +111,31 @@ namespace Whc.UnitTesting
         {
             CheckStringRequired(obj, propertyName, "x@x.com", isRequired);
         }
+
+        public static void CheckEmailMaxLength(T obj, Expression<Func<T, object>> propertyLambdaExpression, int maxLength)
+        {
+            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
+            CheckStringMaxLength(obj,
+                reflectedPropertyInfo.Name,
+                maxLength,
+                "x@x.com",
+                string.Format("{0}@x.com", new string('x', maxLength - 6)),
+                string.Format("{0}@x.com", new string('x', maxLength - 5)));
+        }
+
+        public static void CheckEmailMaxLength(T obj, string propertyName, int maxLength)
+        {
+            CheckStringMaxLength(obj,
+                propertyName,
+                maxLength,
+                "x@x.com",
+                string.Format("{0}@x.x", new string('x', maxLength - 6)),
+                string.Format("{0}@x.x", new string('x', maxLength - 5)));
+        }
+
+        #endregion
+
+        #region [String]
 
         public static void CheckStringRequired(T obj, Expression<Func<T, object>> propertyLambdaExpression, bool isRequired)
         {
@@ -130,146 +159,20 @@ namespace Whc.UnitTesting
             {
                 // The string is required so we should have a broken rule.
                 Assert.IsTrue(IsRuleBroken(obj, propertyName),
-                    String.Format("[StringRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].", propertyName));
+                    string.Format("[StringRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].", propertyName));
             }
             else
             {
                 // The string is NOT required so we should NOT have a broken rule.
                 Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                    String.Format("[StringRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].", propertyName));
+                    string.Format("[StringRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].", propertyName));
             }
 
             // Check what happens when the string value is NOT empty.
             Utilities.CallByName(obj, propertyName, CallType.Set, validValue);
             // The string is required so we should have a broken rule.
             Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                String.Format("[StringRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].", propertyName));
-        }
-
-        public static void CheckIntRequired(T obj, Expression<Func<T, object>> propertyLambdaExpression, bool isRequired)
-        {
-            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
-            CheckIntRequired(obj, reflectedPropertyInfo.Name, isRequired);
-        }
-
-        public static void CheckIntRequired(T obj, string propertyName, bool isRequired)
-        {
-            // First, make sure the object is valid.
-            Assert.IsTrue(obj.IsValid, "[IntRequired] : The object must be valid before the rule can be checked.");
-
-            // Check what happens when the value is zero.
-            Utilities.CallByName(obj, propertyName, CallType.Set, 0);
-            if (isRequired)
-            {
-                // The value is required so we should have a broken rule.
-                Assert.IsTrue(IsRuleBroken(obj, propertyName),
-                    String.Format("[IntRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].", propertyName));
-            }
-            else
-            {
-                // The string is NOT required so we should NOT have a broken rule.
-                Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                    String.Format("[IntRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].", propertyName));
-            }
-
-            // Check what happens when the string value is NOT empty.
-            Utilities.CallByName(obj, propertyName, CallType.Set, 1);
-            // The string is required so we should have a broken rule.
-            Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                String.Format("[IntRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].", propertyName));
-        }
-
-        public static void CheckDecimalRequired(T obj, string propertyName, bool isRequired)
-        {
-            // First, make sure the object is valid.
-            Assert.IsTrue(obj.IsValid, "[DecimalRequired] : The object must be valid before the rule can be checked.");
-
-            // Check what happens when the value is zero.
-            Utilities.CallByName(obj, propertyName, CallType.Set, default(T));
-            if (isRequired)
-            {
-                // The value is required so we should have a broken rule.
-                Assert.IsTrue(IsRuleBroken(obj, propertyName),
-                    String.Format("[DecimalRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].", propertyName));
-            }
-            else
-            {
-                // The string is NOT required so we should NOT have a broken rule.
-                Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                    String.Format("[DecimalRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].", propertyName));
-            }
-
-            // Check what happens when the string value is NOT empty.
-            Utilities.CallByName(obj, propertyName, CallType.Set, 1.0m);
-            // The string is required so we should have a broken rule.
-            Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                String.Format("[DecimalRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].", propertyName));
-        }
-
-        public static void CheckNumberRequired(T obj, Expression<Func<T, object>> propertyLambdaExpression, bool isRequired)
-        {
-            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
-            CheckDecimalRequired(obj, reflectedPropertyInfo.Name, isRequired);
-        }
-
-        public static void CheckNumberRequired(T obj, string propertyName, bool isRequired)
-        {
-            // First, make sure the object is valid.
-            Assert.IsTrue(obj.IsValid, "[NumberRequired] : The object must be valid before the rule can be checked.");
-
-            // Check what happens when the value is zero.
-            Utilities.CallByName(obj, propertyName, CallType.Set, default(T));
-            if (isRequired)
-            {
-                // The value is required so we should have a broken rule.
-                Assert.IsTrue(IsRuleBroken(obj, propertyName),
-                    String.Format("[NumberRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].", propertyName));
-            }
-            else
-            {
-                // The string is NOT required so we should NOT have a broken rule.
-                Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                    String.Format("[NumberRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].", propertyName));
-            }
-
-            // Check what happens when the string value is NOT empty.
-            Utilities.CallByName(obj, propertyName, CallType.Set, 1);
-            // The string is required so we should have a broken rule.
-            Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                String.Format("[NumberRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].", propertyName));
-        }
-
-        public static void CheckDecimalRequired(T obj, Expression<Func<T, object>> propertyLambdaExpression, bool isRequired)
-        {
-            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
-            CheckDecimalRequired(obj, reflectedPropertyInfo.Name, isRequired);
-        }
-
-        public static void CheckBitmapRequired(T obj, string propertyName, bool isRequired)
-        {
-            // First, make sure the object is valid.
-            Assert.IsTrue(obj.IsValid, "[BitmapRequired] : The object must be valid before the rule can be checked.");
-
-            // Check what happens when the image is null.
-            Utilities.CallByName(obj, propertyName, CallType.Set, new object[] { null });
-            if (isRequired)
-            {
-                // The string is required so we should have a broken rule.
-                Assert.IsTrue(IsRuleBroken(obj, propertyName),
-                    String.Format("[BitmapRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].", propertyName));
-            }
-            else
-            {
-                // The string is NOT required so we should NOT have a broken rule.
-                Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                    String.Format("[BitmapRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].", propertyName));
-            }
-
-            // Check what happens when the string value is NOT empty.
-            Utilities.CallByName(obj, propertyName, CallType.Set, new System.Drawing.Bitmap(10, 10));
-            // The string is required so we should have a broken rule.
-            Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                String.Format("[BitmapRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].", propertyName));
+                string.Format("[StringRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].", propertyName));
         }
 
         public static void CheckStringMaxLength(T obj, Expression<Func<T, object>> propertyLambdaExpression, int maxLength)
@@ -296,122 +199,54 @@ namespace Whc.UnitTesting
             // Set the length to the max and make sure we're still valid.
             Utilities.CallByName(obj, propertyName, CallType.Set, maxLengthValue);
             Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                String.Format("[CheckStringMaxLength] : Property [{0}] should not be broken at the maximum length {1}. Check your ValidationRule.", propertyName, maxLength));
+                string.Format("[CheckStringMaxLength] : Property [{0}] should not be broken at the maximum length {1}. Check your ValidationRule.", propertyName, maxLength));
 
             // Now set the length to the max + 1 and make sure we're broken now.
             Utilities.CallByName(obj, propertyName, CallType.Set, longValue);
             Assert.IsTrue(IsRuleBroken(obj, propertyName),
-                String.Format("[CheckStringMaxLength] : Property [{0}] should be broken at {1} characters. Check your ValidationRule.", propertyName, maxLength + 1));
+                string.Format("[CheckStringMaxLength] : Property [{0}] should be broken at {1} characters. Check your ValidationRule.", propertyName, maxLength + 1));
 
             // Finally, set the length back to the max and make sure the broken rule is cleared.
             Utilities.CallByName(obj, propertyName, CallType.Set, maxLengthValue);
             Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                String.Format("[CheckStringMaxLength] : Property [{0}] should not be broken at the maximum length {1}. The validation rule is not being cleared.", propertyName, maxLength));
+                string.Format("[CheckStringMaxLength] : Property [{0}] should not be broken at the maximum length {1}. The validation rule is not being cleared.", propertyName, maxLength));
         }
 
-        public static void CheckEmailMaxLength(T obj, Expression<Func<T, object>> propertyLambdaExpression, int maxLength)
+        #endregion
+
+        #region [Int]
+
+        public static void CheckIntRequired(T obj, Expression<Func<T, object>> propertyLambdaExpression, bool isRequired)
         {
             PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
-            CheckStringMaxLength(obj,
-                reflectedPropertyInfo.Name,
-                maxLength,
-                "x@x.com",
-                String.Format("{0}@x.com", new string('x', maxLength - 6)),
-                String.Format("{0}@x.com", new string('x', maxLength - 5)));
+            CheckIntRequired(obj, reflectedPropertyInfo.Name, isRequired);
         }
 
-        public static void CheckEmailMaxLength(T obj, string propertyName, int maxLength)
-        {
-            CheckStringMaxLength(obj,
-                propertyName,
-                maxLength,
-                "x@x.com",
-                String.Format("{0}@x.x", new string('x', maxLength - 6)),
-                String.Format("{0}@x.x", new string('x', maxLength - 5)));
-        }
-
-        public static void CheckEnumRules<TEnum>(T obj, Expression<Func<T, object>> propertyLambdaExpression, TEnum validValue, TEnum emptyValue, bool required)
-        {
-            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
-            CheckEnumRules(obj, reflectedPropertyInfo.Name, validValue, emptyValue, required);
-        }
-
-        public static void CheckEnumRules<TEnum>(T obj, string propertyName, TEnum validValue, TEnum emptyValue, bool required)
+        public static void CheckIntRequired(T obj, string propertyName, bool isRequired)
         {
             // First, make sure the object is valid.
-            Assert.IsTrue(obj.IsValid, "[CheckEnumRules] : The object must be valid before the rule can be checked.");
+            Assert.IsTrue(obj.IsValid, "[IntRequired] : The object must be valid before the rule can be checked.");
 
-            Utilities.CallByName(obj, propertyName, CallType.Set, emptyValue);
-            Assert.IsFalse(obj.IsValid, String.Format("[{0}] Object should not be valid.", propertyName));
-            Utilities.CallByName(obj, propertyName, CallType.Set, validValue);
-            Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
-            if (required)
+            // Check what happens when the value is zero.
+            Utilities.CallByName(obj, propertyName, CallType.Set, 0);
+            if (isRequired)
             {
-                Utilities.CallByName(obj, propertyName, CallType.Set, emptyValue);
-                Assert.IsFalse(obj.IsValid, String.Format("[{0}, Required] Object should not be valid if the value is required.", propertyName));
-                Utilities.CallByName(obj, propertyName, CallType.Set, validValue);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}, Required] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                // The value is required so we should have a broken rule.
+                Assert.IsTrue(IsRuleBroken(obj, propertyName),
+                    string.Format("[IntRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].", propertyName));
             }
             else
             {
-                Utilities.CallByName(obj, propertyName, CallType.Set, emptyValue);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}, Not Required] Object should be valid if the value is NOT required. {1}", propertyName, obj.BrokenRulesCollection));
+                // The string is NOT required so we should NOT have a broken rule.
+                Assert.IsFalse(IsRuleBroken(obj, propertyName),
+                    string.Format("[IntRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].", propertyName));
             }
-            // Leave the object in a valid state.
-            Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
-        }
 
-        public static void CheckGuidRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, bool required)
-        {
-            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
-            CheckGuidRules(obj, reflectedPropertyInfo.Name, required);
-        }
-
-        public static void CheckGuidRules(T obj, string propertyName, bool required)
-        {
-            // First, make sure the object is valid.
-            Assert.IsTrue(obj.IsValid, "[CheckGuidRules] : The object must be valid before the rule can be checked.");
-
-            if (required)
-            {
-                Utilities.CallByName(obj, propertyName, CallType.Set, Guid.Empty);
-                Assert.IsFalse(obj.IsValid, String.Format("[{0}, Required] Object should not be valid if the value is required.", propertyName));
-                Utilities.CallByName(obj, propertyName, CallType.Set, Guid.NewGuid());
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}, Required] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
-            }
-            else
-            {
-                Utilities.CallByName(obj, propertyName, CallType.Set, Guid.Empty);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}, Not Required] Object should be valid if the value is NOT required.", propertyName));
-            }
-            // Leave the object in a valid state.
-            Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
-        }
-
-        public static void CheckObjectRequiredRules(T obj, IPropertyInfo propertyInfo, T nonEmptyValue, bool required)
-        {
-            CheckObjectRequiredRules(obj, propertyInfo.Name, nonEmptyValue, required);
-        }
-
-        public static void CheckObjectRequiredRules(T obj, string propertyName, T nonEmptyValue, bool required)
-        {
-            // First, make sure the object is valid.
-            Assert.IsTrue(obj.IsValid, "[CheckObjectRequiredRules] : The object must be valid before the rule can be checked.");
-
-            if (required)
-            {
-                Utilities.CallByName(obj, propertyName, CallType.Set, new object[] { null });
-                Assert.IsFalse(obj.IsValid, String.Format("[{0}, Required] Object should not be valid if the value is required.", propertyName));
-                Utilities.CallByName(obj, propertyName, CallType.Set, nonEmptyValue);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}, Required] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
-            }
-            else
-            {
-                Utilities.CallByName(obj, propertyName, CallType.Set, new object[] { null });
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}, Not Required] Object should be valid if the value is NOT required.", propertyName));
-            }
-            // Leave the object in a valid state.
-            Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            // Check what happens when the string value is NOT empty.
+            Utilities.CallByName(obj, propertyName, CallType.Set, 1);
+            // The string is required so we should have a broken rule.
+            Assert.IsFalse(IsRuleBroken(obj, propertyName),
+                string.Format("[IntRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].", propertyName));
         }
 
         public static void CheckIntMinMaxRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, int min, int max)
@@ -428,19 +263,19 @@ namespace Whc.UnitTesting
             if (min != int.MinValue)
             {
                 Utilities.CallByName(obj, propertyName, CallType.Set, min - 1);
-                Assert.IsFalse(obj.IsValid, String.Format("[{0}] Object should not be valid.", propertyName));
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
                 Utilities.CallByName(obj, propertyName, CallType.Set, min);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
             }
             if (max != int.MaxValue)
             {
                 Utilities.CallByName(obj, propertyName, CallType.Set, max + 1);
-                Assert.IsFalse(obj.IsValid, String.Format("[{0}] Object should not be valid.", propertyName));
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
                 Utilities.CallByName(obj, propertyName, CallType.Set, max);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
             }
             // Leave the object in a valid state.
-            Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
         }
 
         public static void CheckIntMinExclusiveRules(T obj, string propertyName, int min)
@@ -451,16 +286,16 @@ namespace Whc.UnitTesting
             if (min != int.MinValue)
             {
                 Utilities.CallByName(obj, propertyName, CallType.Set, min - 1);
-                Assert.IsFalse(obj.IsValid, String.Format("[{0}] Object should not be valid.", propertyName));
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
                 Utilities.CallByName(obj, propertyName, CallType.Set, min + 1);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
                 Utilities.CallByName(obj, propertyName, CallType.Set, min);
-                Assert.IsFalse(obj.IsValid, String.Format("[{0}] Object should not be valid.", propertyName));
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
                 Utilities.CallByName(obj, propertyName, CallType.Set, min + 1);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
             }
             // Leave the object in a valid state.
-            Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
         }
 
         public static void CheckIntMaxExclusiveRules(T obj, string propertyName, int max)
@@ -471,45 +306,53 @@ namespace Whc.UnitTesting
             if (max != int.MaxValue)
             {
                 Utilities.CallByName(obj, propertyName, CallType.Set, max + 1);
-                Assert.IsFalse(obj.IsValid, String.Format("[{0}] Object should not be valid.", propertyName));
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
                 Utilities.CallByName(obj, propertyName, CallType.Set, max - 1);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
                 Utilities.CallByName(obj, propertyName, CallType.Set, max);
-                Assert.IsFalse(obj.IsValid, String.Format("[{0}] Object should not be valid.", propertyName));
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
                 Utilities.CallByName(obj, propertyName, CallType.Set, max - 1);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
             }
             // Leave the object in a valid state.
-            Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
         }
 
-        public static void CheckDoubleMinMaxRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, double min, double max)
-        {
-            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
-            CheckDoubleMinMaxRules(obj, reflectedPropertyInfo.Name, min, max);
-        }
+        #endregion
 
-        public static void CheckDoubleMinMaxRules(T obj, string propertyName, double min, double max)
+        #region [Decimal]
+
+        public static void CheckDecimalRequired(T obj, string propertyName, bool isRequired)
         {
             // First, make sure the object is valid.
-            Assert.IsTrue(obj.IsValid, "[CheckDoubleMinMaxRules] : The object must be valid before the rule can be checked.");
+            Assert.IsTrue(obj.IsValid, "[DecimalRequired] : The object must be valid before the rule can be checked.");
 
-            if (Math.Abs(min - double.MinValue) > double.Epsilon)
+            // Check what happens when the value is zero.
+            Utilities.CallByName(obj, propertyName, CallType.Set, default(T));
+            if (isRequired)
             {
-                Utilities.CallByName(obj, propertyName, CallType.Set, min - 1);
-                Assert.IsFalse(obj.IsValid, String.Format("[{0}] Object should not be valid.", propertyName));
-                Utilities.CallByName(obj, propertyName, CallType.Set, min);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                // The value is required so we should have a broken rule.
+                Assert.IsTrue(IsRuleBroken(obj, propertyName),
+                    string.Format("[DecimalRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].", propertyName));
             }
-            if (Math.Abs(max - double.MaxValue) > double.Epsilon)
+            else
             {
-                Utilities.CallByName(obj, propertyName, CallType.Set, max + 1);
-                Assert.IsFalse(obj.IsValid, String.Format("[{0}] Object should not be valid.", propertyName));
-                Utilities.CallByName(obj, propertyName, CallType.Set, max);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                // The string is NOT required so we should NOT have a broken rule.
+                Assert.IsFalse(IsRuleBroken(obj, propertyName),
+                    string.Format("[DecimalRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].", propertyName));
             }
-            // Leave the object in a valid state.
-            Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+
+            // Check what happens when the string value is NOT empty.
+            Utilities.CallByName(obj, propertyName, CallType.Set, 1.0m);
+            // The string is required so we should have a broken rule.
+            Assert.IsFalse(IsRuleBroken(obj, propertyName),
+                string.Format("[DecimalRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].", propertyName));
+        }
+
+        public static void CheckDecimalRequired(T obj, Expression<Func<T, object>> propertyLambdaExpression, bool isRequired)
+        {
+            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
+            CheckDecimalRequired(obj, reflectedPropertyInfo.Name, isRequired);
         }
 
         public static void CheckDecimalMinMaxRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, decimal min, decimal max)
@@ -526,20 +369,395 @@ namespace Whc.UnitTesting
             if (min != decimal.MinValue)
             {
                 Utilities.CallByName(obj, propertyName, CallType.Set, min - 1);
-                Assert.IsFalse(obj.IsValid, String.Format("[{0}] Object should not be valid.", propertyName));
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
                 Utilities.CallByName(obj, propertyName, CallType.Set, min);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
             }
             if (max != decimal.MaxValue)
             {
                 Utilities.CallByName(obj, propertyName, CallType.Set, max + 1);
-                Assert.IsFalse(obj.IsValid, String.Format("[{0}] Object should not be valid.", propertyName));
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
                 Utilities.CallByName(obj, propertyName, CallType.Set, max);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
             }
             // Leave the object in a valid state.
-            Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
         }
+
+        #endregion
+
+        #region [Number]
+
+        public static void CheckNumberRequired(T obj, Expression<Func<T, object>> propertyLambdaExpression, bool isRequired)
+        {
+            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
+            CheckNumberRequired(obj, reflectedPropertyInfo.Name, isRequired);
+        }
+
+        public static void CheckNumberRequired(T obj, string propertyName, bool isRequired)
+        {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[NumberRequired] : The object must be valid before the rule can be checked.");
+
+            // Check what happens when the value is zero.
+            Utilities.CallByName(obj, propertyName, CallType.Set, default(T));
+            if (isRequired)
+            {
+                // The value is required so we should have a broken rule.
+                Assert.IsTrue(IsRuleBroken(obj, propertyName),
+                    string.Format("[NumberRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].", propertyName));
+            }
+            else
+            {
+                // The string is NOT required so we should NOT have a broken rule.
+                Assert.IsFalse(IsRuleBroken(obj, propertyName),
+                    string.Format("[NumberRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].", propertyName));
+            }
+
+            // Check what happens when the string value is NOT empty.
+            Utilities.CallByName(obj, propertyName, CallType.Set, 1);
+            // The string is required so we should have a broken rule.
+            Assert.IsFalse(IsRuleBroken(obj, propertyName),
+                string.Format("[NumberRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].", propertyName));
+        }
+
+        #endregion
+
+        #region [Bitmap]
+
+        public static void CheckBitmapRequired(T obj, string propertyName, bool isRequired)
+        {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[BitmapRequired] : The object must be valid before the rule can be checked.");
+
+            // Check what happens when the image is null.
+            Utilities.CallByName(obj, propertyName, CallType.Set, new object[] { null });
+            if (isRequired)
+            {
+                // The string is required so we should have a broken rule.
+                Assert.IsTrue(IsRuleBroken(obj, propertyName),
+                    string.Format("[BitmapRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].", propertyName));
+            }
+            else
+            {
+                // The string is NOT required so we should NOT have a broken rule.
+                Assert.IsFalse(IsRuleBroken(obj, propertyName),
+                    string.Format("[BitmapRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].", propertyName));
+            }
+
+            // Check what happens when the string value is NOT empty.
+            Utilities.CallByName(obj, propertyName, CallType.Set, new System.Drawing.Bitmap(10, 10));
+            // The string is required so we should have a broken rule.
+            Assert.IsFalse(IsRuleBroken(obj, propertyName),
+                string.Format("[BitmapRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].", propertyName));
+        }
+
+        #endregion
+
+        #region [Enum]
+
+        public static void CheckEnumRules<TEnum>(T obj, Expression<Func<T, object>> propertyLambdaExpression, TEnum validValue, TEnum emptyValue, bool required)
+        {
+            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
+            CheckEnumRules(obj, reflectedPropertyInfo.Name, validValue, emptyValue, required);
+        }
+
+        public static void CheckEnumRules<TEnum>(T obj, string propertyName, TEnum validValue, TEnum emptyValue, bool required)
+        {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckEnumRules] : The object must be valid before the rule can be checked.");
+
+            Utilities.CallByName(obj, propertyName, CallType.Set, emptyValue);
+            Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+            Utilities.CallByName(obj, propertyName, CallType.Set, validValue);
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            if (required)
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, emptyValue);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}, Required] Object should not be valid if the value is required.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, validValue);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}, Required] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            else
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, emptyValue);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}, Not Required] Object should be valid if the value is NOT required. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            // Leave the object in a valid state.
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+        }
+
+        #endregion
+
+        #region [Guid]
+
+        public static void CheckGuidRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, bool required)
+        {
+            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
+            CheckGuidRules(obj, reflectedPropertyInfo.Name, required);
+        }
+
+        public static void CheckGuidRules(T obj, string propertyName, bool required)
+        {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckGuidRules] : The object must be valid before the rule can be checked.");
+
+            if (required)
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, Guid.Empty);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}, Required] Object should not be valid if the value is required.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, Guid.NewGuid());
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}, Required] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            else
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, Guid.Empty);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}, Not Required] Object should be valid if the value is NOT required.", propertyName));
+            }
+            // Leave the object in a valid state.
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+        }
+
+        #endregion
+
+        #region [Object]
+
+        public static void CheckObjectRequiredRules(T obj, IPropertyInfo propertyInfo, T nonEmptyValue, bool required)
+        {
+            CheckObjectRequiredRules(obj, propertyInfo.Name, nonEmptyValue, required);
+        }
+
+        public static void CheckObjectRequiredRules(T obj, string propertyName, T nonEmptyValue, bool required)
+        {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckObjectRequiredRules] : The object must be valid before the rule can be checked.");
+
+            if (required)
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, new object[] { null });
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}, Required] Object should not be valid if the value is required.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, nonEmptyValue);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}, Required] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            else
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, new object[] { null });
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}, Not Required] Object should be valid if the value is NOT required.", propertyName));
+            }
+            // Leave the object in a valid state.
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+        }
+
+        #endregion
+
+        #region [Short]
+
+        public static void CheckShortMinMaxRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, short min, short max)
+        {
+            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
+            CheckShortMinMaxRules(obj, reflectedPropertyInfo.Name, min, max);
+        }
+
+        public static void CheckShortMinMaxRules(T obj, string propertyName, short min, short max)
+        {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckShortMinMaxRules] : The object must be valid before the rule can be checked.");
+
+            short testValue = 0;
+            short increment = 1;
+            if (min != short.MinValue)
+            {
+                testValue = (short)(min - increment);
+                Utilities.CallByName(obj, propertyName, CallType.Set, testValue);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, min);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            if (max != short.MaxValue)
+            {
+                testValue = (short)(max + increment);
+                Utilities.CallByName(obj, propertyName, CallType.Set, testValue);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, max);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            // Leave the object in a valid state.
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+        }
+
+        public static void CheckShortMinExclusiveRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, short min)
+        {
+            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
+            CheckShortMinExclusiveRules(obj, reflectedPropertyInfo.Name, min);
+        }
+
+        public static void CheckShortMinExclusiveRules(T obj, string propertyName, short min)
+        {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckShortMinExclusiveRules] : The object must be valid before the rule can be checked.");
+
+            if (min != short.MinValue)
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, min - 1);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, min + 1);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Utilities.CallByName(obj, propertyName, CallType.Set, min);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, min + 1);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            // Leave the object in a valid state.
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+        }
+
+        public static void CheckShortMaxExclusiveRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, short max)
+        {
+            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
+            CheckShortMaxExclusiveRules(obj, reflectedPropertyInfo.Name, max);
+        }
+
+        public static void CheckShortMaxExclusiveRules(T obj, string propertyName, short max)
+        {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckEnumRules] : The object must be valid before the rule can be checked.");
+
+            if (max != short.MaxValue)
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, max + 1);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, max - 1);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Utilities.CallByName(obj, propertyName, CallType.Set, max);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, max - 1);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            // Leave the object in a valid state.
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+        }
+
+        #endregion
+
+        #region [Long]
+
+        public static void CheckLongMinMaxRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, long min, long max)
+        {
+            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
+            CheckLongMinMaxRules(obj, reflectedPropertyInfo.Name, min, max);
+        }
+
+        public static void CheckLongMinMaxRules(T obj, string propertyName, long min, long max)
+        {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckLongMinMaxRules] : The object must be valid before the rule can be checked.");
+
+            if (min != long.MinValue)
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, min - 1);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, min);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            if (max != long.MaxValue)
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, max + 1);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, max);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            // Leave the object in a valid state.
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+        }
+
+        public static void CheckLongMinExclusiveRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, long min)
+        {
+            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
+            CheckLongMinExclusiveRules(obj, reflectedPropertyInfo.Name, min);
+        }
+
+        public static void CheckLongMinExclusiveRules(T obj, string propertyName, long min)
+        {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckLongMinExclusiveRules] : The object must be valid before the rule can be checked.");
+
+            if (min != long.MinValue)
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, min - 1);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, min + 1);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Utilities.CallByName(obj, propertyName, CallType.Set, min);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, min + 1);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            // Leave the object in a valid state.
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+        }
+
+        public static void CheckLongMaxExclusiveRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, long max)
+        {
+            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
+            CheckLongMaxExclusiveRules(obj, reflectedPropertyInfo.Name, max);
+        }
+
+        public static void CheckLongMaxExclusiveRules(T obj, string propertyName, long max)
+        {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckEnumRules] : The object must be valid before the rule can be checked.");
+
+            if (max != long.MaxValue)
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, max + 1);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, max - 1);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Utilities.CallByName(obj, propertyName, CallType.Set, max);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, max - 1);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            // Leave the object in a valid state.
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+        }
+
+        #endregion
+
+        #region [Double]
+
+        public static void CheckDoubleMinMaxRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, double min, double max)
+        {
+            PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
+            CheckDoubleMinMaxRules(obj, reflectedPropertyInfo.Name, min, max);
+        }
+
+        public static void CheckDoubleMinMaxRules(T obj, string propertyName, double min, double max)
+        {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckDoubleMinMaxRules] : The object must be valid before the rule can be checked.");
+
+            if (Math.Abs(min - double.MinValue) > double.Epsilon)
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, min - 1);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, min);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            if (Math.Abs(max - double.MaxValue) > double.Epsilon)
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, max + 1);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, max);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            // Leave the object in a valid state.
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+        }
+
+        #endregion
+
+        #region [Byte]
 
         public static void CheckByteRequired(T obj, Expression<Func<T, object>> propertyLambdaExpression, bool isRequired)
         {
@@ -558,22 +776,21 @@ namespace Whc.UnitTesting
             {
                 // The value is required so we should have a broken rule.
                 Assert.IsTrue(IsRuleBroken(obj, propertyName),
-                    String.Format("[ByteRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].", propertyName));
+                    string.Format("[ByteRequired] : Object should not be valid. You are missing a ValidationRule to require a value for property [{0}].", propertyName));
             }
             else
             {
                 // The string is NOT required so we should NOT have a broken rule.
                 Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                    String.Format("[ByteRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].", propertyName));
+                    string.Format("[ByteRequired] : Object should be valid. You have a ValidationRule to require a value for property [{0}].", propertyName));
             }
 
             // Check what happens when the string value is NOT empty.
             Utilities.CallByName(obj, propertyName, CallType.Set, (Byte)1);
             // The string is required so we should have a broken rule.
             Assert.IsFalse(IsRuleBroken(obj, propertyName),
-                String.Format("[ByteRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].", propertyName));
+                string.Format("[ByteRequired] : Object should be valid. A broken rule is not being cleared for property [{0}].", propertyName));
         }
-
 
         public static void CheckByteMinMaxRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, byte min, byte max)
         {
@@ -592,22 +809,26 @@ namespace Whc.UnitTesting
                 val = min;
                 val--;
                 Utilities.CallByName(obj, propertyName, CallType.Set, val);
-                Assert.IsFalse(obj.IsValid, String.Format("[{0}] Object should not be valid.", propertyName));
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
                 Utilities.CallByName(obj, propertyName, CallType.Set, min);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
             }
             if (max != byte.MaxValue)
             {
                 val = max;
                 val++;
                 Utilities.CallByName(obj, propertyName, CallType.Set, val);
-                Assert.IsFalse(obj.IsValid, String.Format("[{0}] Object should not be valid.", propertyName));
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
                 Utilities.CallByName(obj, propertyName, CallType.Set, max);
-                Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
             }
             // Leave the object in a valid state.
-            Assert.IsTrue(obj.IsValid, String.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
         }
+
+        #endregion
+
+        #region [Miscellaneous]
 
         public static string RandomString(int size)
         {
@@ -621,5 +842,12 @@ namespace Whc.UnitTesting
             return builder.ToString();
         }
 
+        public static bool IsRuleBroken(T obj, string propertyName)
+        {
+            var rule = obj.BrokenRulesCollection.GetFirstBrokenRule(propertyName);
+            return (rule != null);
+        }
+
+        #endregion
     }
 }

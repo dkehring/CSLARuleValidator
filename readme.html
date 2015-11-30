@@ -1,23 +1,14 @@
 ﻿<h1>CSLA Business Rule Validator for Unit Testing</h1>
-
 <p>Provides utility classes for unit testing CSLA business rules as well as base classes for integration testing and additional business rules not found in the common rules provided by CSLA.</p>
-
 <h2>Base Classes</h2>
-
 <p><strong>TestBase</strong> - a template class for all test classes. Sets up virtual OnInitialize and OnCleaup methods.</p>
-
 <p><strong>TransationalTest</strong> - wraps a test in a transaction that will automatically rollback any database changes. Use this for integration tests that interact with the database.</p>
-
 <p><em>There are MSUnit and NUnit flavors of each of the above base classes.</em></p>
-
 <h2>RuleValidator</h2>
-
 <p>The <strong>RuleValidator</strong> class is the main class used to validate business rules. </p>
-
 <h3>Basic usage</h3>
-
-<p>Given an object that inherits from CSAL.Core.BusinessBase<T>:</p>
-
+<p>Given an object that inherits from CSAL.Core.BusinessBase<T>:  
+</p>
 <pre><code>using Whc.UnitTesting;
 
 [TestClass]
@@ -41,16 +32,14 @@ public class OrderTests : TestBase
     public void SiteNumber_MinMaxValue()
     {
         var obj = NewObject();
-        RuleValidator&lt;Order&gt;.CheckIntMinMaxRules(obj, x =&gt; x.SiteNumber, 1, int.MaxValue);
+        RuleValidator&lt;Order&gt;.CheckIntMinMaxRules(obj, x =&gt; x.SiteNumber, 1, int.MaxValue);  
     }
 }
 </code></pre>
-
 <p>The method CheckIntMinMaxRules will check the bounds of the rules for the given property (in this case SiteNumber) and throw Asserts if the rule fails.</p>
-
 <h3>Additional Rule Validation Methods</h3>
-
 <ul>
+<li>CheckDateRequired</li>
 <li>CheckBitmapRequired</li>
 <li>CheckByteMinMaxRules</li>
 <li>CheckByteRequired</li>
@@ -68,23 +57,47 @@ public class OrderTests : TestBase
 <li>CheckIntMinExclusive</li>
 <li>CheckIntMinMaxRules</li>
 <li>CheckIntRequired</li>
+<li>CheckShortMaxExclusive - :new:</li>
+<li>CheckShortMinExclusive - :new:</li>
+<li>CheckShortMinMaxRules - :new:</li>
+<li>CheckLongMaxExclusive - :new:</li>
+<li>CheckLongMinExclusive - :new:</li>
+<li>CheckLongMinMaxRules - :new:</li>
 <li>CheckNumberRequired</li>
 <li>CheckObjectRequired</li>
 <li>CheckSmartDateRequired</li>
 <li>CheckStringMaxLength</li>
 <li>CheckStringRequired</li>
 </ul>
-
 <h1>Integration Tests</h1>
-
 <p>The way I like to do integration testing against a database is to start with an empty database (with the exception of a User record for authentication and authorization). Each integration test is wrapped in a transaction that is rolled back at the end of the test, regardless of whether the test passes or fails. </p>
+<pre><code>using System.Transactions;
 
-<p>This ensures that I leave the database unchanged after each test but requires that I set up the data I need for each test.</p>
+namespace WHC.UnitTesting.MSTest
+{
+    public class TransactionalTest : TestBase
+    {
+        protected TransactionScope _ts;
 
-<p>To support integration tests, simply inherit your test class from the base class TransactionalTest:<br/>
-        using Whc.Csla;</p>
+        protected override void OnInitialize()
+        {
+            base.OnInitialize();
+            _ts = new TransactionScope(TransactionScopeOption.Required);
+        }
 
-<pre><code>[TestClass]
+        public override void OnCleanup()
+        {
+            _ts.Dispose();
+            base.OnCleanup();
+        }
+    }
+}
+</code></pre>
+<p>The transaction ensures that I leave the database unchanged after each test but requires that I set up the data I need for each test.</p>
+<p>To support integration tests, simply inherit your test class from the base class TransactionalTest:</p>
+<pre><code>using Whc.Csla;
+
+[TestClass]
 public class OrderTests : TransactionalTest
 {
 }

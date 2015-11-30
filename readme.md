@@ -48,7 +48,7 @@ The method CheckIntMinMaxRules will check the bounds of the rules for the given 
 ###Additional Rule Validation Methods###
 
 
-- CheckDateRequired - :new:
+- CheckDateRequired
 - CheckBitmapRequired
 - CheckByteMinMaxRules
 - CheckByteRequired
@@ -66,6 +66,12 @@ The method CheckIntMinMaxRules will check the bounds of the rules for the given 
 - CheckIntMinExclusive
 - CheckIntMinMaxRules
 - CheckIntRequired
+- CheckShortMaxExclusive - :new:
+- CheckShortMinExclusive - :new:
+- CheckShortMinMaxRules - :new:
+- CheckLongMaxExclusive - :new:
+- CheckLongMinExclusive - :new:
+- CheckLongMinMaxRules - :new:
 - CheckNumberRequired
 - CheckObjectRequired
 - CheckSmartDateRequired

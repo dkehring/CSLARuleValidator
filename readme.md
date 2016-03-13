@@ -8,13 +8,11 @@ Provides utility classes for unit testing CSLA business rules as well as base cl
 
 **TransationalTest** - wraps a test in a transaction that will automatically rollback any database changes. Use this for integration tests that interact with the database.
 
-*There are MSUnit and NUnit flavors of each of the above base classes.*
-
 ## RuleValidator ##
 The **RuleValidator** class is the main class used to validate business rules. 
 ### Basic usage ###
 
-Given an object that inherits from CSAL.Core.BusinessBase<T>:
+Given an object that inherits from CSLA.Core.BusinessBase<T>:
 
     using Whc.UnitTesting;
     
@@ -57,21 +55,24 @@ The method CheckIntMinMaxRules will check the bounds of the rules for the given 
 - CheckDoubleMinMaxRules
 - CheckDoubleRequired
 - CheckDecimalMinMaxRules
-- CheckDoubleRequired
+- CheckDecimalMaxExclusive - :new:
+- CheckDecimalMinExclusive - :new:
+- CheckDoubleMaxExclusive - :new:
+- CheckDoubleMinExclusive - :new:
 - CheckEmailMaxLength
 - CheckEmailRequired
-- CheckEnumRules<TEnum>
+- CheckEnumRules\<TEnum>
 - CheckGuidRules
 - CheckIntMaxExclusive
 - CheckIntMinExclusive
 - CheckIntMinMaxRules
 - CheckIntRequired
-- CheckShortMaxExclusive - :new:
-- CheckShortMinExclusive - :new:
-- CheckShortMinMaxRules - :new:
-- CheckLongMaxExclusive - :new:
-- CheckLongMinExclusive - :new:
-- CheckLongMinMaxRules - :new:
+- CheckShortMaxExclusive
+- CheckShortMinExclusive
+- CheckShortMinMaxRules
+- CheckLongMaxExclusive
+- CheckLongMinExclusive
+- CheckLongMinMaxRules
 - CheckNumberRequired
 - CheckObjectRequired
 - CheckSmartDateRequired

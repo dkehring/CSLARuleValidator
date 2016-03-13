@@ -596,15 +596,16 @@ namespace Whc.UnitTesting
             // First, make sure the object is valid.
             Assert.IsTrue(obj.IsValid, "[CheckShortMinExclusiveRules] : The object must be valid before the rule can be checked.");
 
+            short increment = 1;
             if (min != short.MinValue)
             {
-                Utilities.CallByName(obj, propertyName, CallType.Set, min - 1);
+                Utilities.CallByName(obj, propertyName, CallType.Set, (short)(min - increment));
                 Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
-                Utilities.CallByName(obj, propertyName, CallType.Set, min + 1);
+                Utilities.CallByName(obj, propertyName, CallType.Set, (short)(min + increment));
                 Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
                 Utilities.CallByName(obj, propertyName, CallType.Set, min);
                 Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
-                Utilities.CallByName(obj, propertyName, CallType.Set, min + 1);
+                Utilities.CallByName(obj, propertyName, CallType.Set, (short)(min + increment));
                 Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
             }
             // Leave the object in a valid state.
@@ -622,15 +623,16 @@ namespace Whc.UnitTesting
             // First, make sure the object is valid.
             Assert.IsTrue(obj.IsValid, "[CheckEnumRules] : The object must be valid before the rule can be checked.");
 
+            short increment = 1;
             if (max != short.MaxValue)
             {
-                Utilities.CallByName(obj, propertyName, CallType.Set, max + 1);
+                Utilities.CallByName(obj, propertyName, CallType.Set, (short)(max + increment));
                 Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
-                Utilities.CallByName(obj, propertyName, CallType.Set, max - 1);
+                Utilities.CallByName(obj, propertyName, CallType.Set, (short)(max - 1));
                 Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
                 Utilities.CallByName(obj, propertyName, CallType.Set, max);
                 Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
-                Utilities.CallByName(obj, propertyName, CallType.Set, max - 1);
+                Utilities.CallByName(obj, propertyName, CallType.Set, (short)(max - 1));
                 Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
             }
             // Leave the object in a valid state.
@@ -726,27 +728,27 @@ namespace Whc.UnitTesting
 
         #region [Double]
 
-        public static void CheckDoubleMinMaxRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, double min, double max)
+        public static void CheckDoubleMinMaxRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, double min, double max, double increment = 1.0d)
         {
             PropertyInfo reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
             CheckDoubleMinMaxRules(obj, reflectedPropertyInfo.Name, min, max);
         }
 
-        public static void CheckDoubleMinMaxRules(T obj, string propertyName, double min, double max)
+        public static void CheckDoubleMinMaxRules(T obj, string propertyName, double min, double max, double increment = 1.0d)
         {
             // First, make sure the object is valid.
             Assert.IsTrue(obj.IsValid, "[CheckDoubleMinMaxRules] : The object must be valid before the rule can be checked.");
 
             if (Math.Abs(min - double.MinValue) > double.Epsilon)
             {
-                Utilities.CallByName(obj, propertyName, CallType.Set, min - 1);
+                Utilities.CallByName(obj, propertyName, CallType.Set, min - increment);
                 Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
                 Utilities.CallByName(obj, propertyName, CallType.Set, min);
                 Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
             }
             if (Math.Abs(max - double.MaxValue) > double.Epsilon)
             {
-                Utilities.CallByName(obj, propertyName, CallType.Set, max + 1);
+                Utilities.CallByName(obj, propertyName, CallType.Set, max + increment);
                 Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
                 Utilities.CallByName(obj, propertyName, CallType.Set, max);
                 Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
@@ -754,6 +756,87 @@ namespace Whc.UnitTesting
             // Leave the object in a valid state.
             Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
         }
+
+        /// <summary>
+        /// Checks the minimum value rule, exclusive of the min value provided.
+        /// </summary>
+        /// <param name="obj">The business object being tested.</param>
+        /// <param name="propertyLambdaExpression">A lambda expression representing the property to test.</param>
+        /// <param name="min">The minimum value of the property, exclusive of this value.</param>
+        /// <param name="increment">The amount to increment / decrement from the test value. Default is 1.</param>
+        public static void CheckDoubleMinExclusiveRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, double min, double increment = 1.0d)
+        {
+            var reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
+            CheckDoubleMinExclusiveRules(obj, reflectedPropertyInfo.Name, min);
+        }
+
+        /// <summary>
+        /// Checks the minimum value rule, exclusive of the min value provided.
+        /// </summary>
+        /// <param name="obj">The business object being tested.</param>
+        /// <param name="propertyName">The name of the property being testing.</param>
+        /// <param name="min">The minimum value of the property, exclusive of this value.</param>
+        /// <param name="increment">The amount to increment / decrement from the test value. Default is 1.</param>
+        public static void CheckDoubleMinExclusiveRules(T obj, string propertyName, double min, double increment = 1.0d)
+        {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckDoubleMinExclusiveRules] : The object must be valid before the rule can be checked.");
+
+            if (Math.Abs(min - double.MinValue) > double.Epsilon)
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, min - increment);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, min + increment);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Utilities.CallByName(obj, propertyName, CallType.Set, min);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, min + increment);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            // Leave the object in a valid state.
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+        }
+
+        /// <summary>
+        /// Checks the maximum value rule, exclusive of the max value provided.
+        /// </summary>
+        /// <param name="obj">The business object being tested.</param>
+        /// <param name="propertyLambdaExpression">A lambda expression representing the property to test.</param>
+        /// <param name="max">The maximum value of the property, exclusive of this value.</param>
+        /// <param name="increment">The amount to increment / decrement from the test value. Default is 1.</param>
+        public static void CheckDoubleMaxExclusiveRules(T obj, Expression<Func<T, object>> propertyLambdaExpression, double max, double increment = 1.0d)
+        {
+            var reflectedPropertyInfo = Reflect<T>.GetProperty(propertyLambdaExpression);
+            CheckDoubleMaxExclusiveRules(obj, reflectedPropertyInfo.Name, max);
+        }
+
+        /// <summary>
+        /// Checks the maximum value rule, exclusive of the max value provided.
+        /// </summary>
+        /// <param name="obj">The business object being tested.</param>
+        /// <param name="propertyName">The name of the property being testing.</param>
+        /// <param name="max">The maximum value of the property, exclusive of this value.</param>
+        /// <param name="increment">The amount to increment / decrement from the test value. Default is 1.</param>
+        public static void CheckDoubleMaxExclusiveRules(T obj, string propertyName, double max, double increment = 1.0d)
+        {
+            // First, make sure the object is valid.
+            Assert.IsTrue(obj.IsValid, "[CheckEnumRules] : The object must be valid before the rule can be checked.");
+
+            if (Math.Abs(max - double.MaxValue) > double.Epsilon)
+            {
+                Utilities.CallByName(obj, propertyName, CallType.Set, max + increment);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, max - increment);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+                Utilities.CallByName(obj, propertyName, CallType.Set, max);
+                Assert.IsFalse(obj.IsValid, string.Format("[{0}] Object should not be valid.", propertyName));
+                Utilities.CallByName(obj, propertyName, CallType.Set, max - increment);
+                Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+            }
+            // Leave the object in a valid state.
+            Assert.IsTrue(obj.IsValid, string.Format("[{0}] Object should be valid. {1}", propertyName, obj.BrokenRulesCollection));
+        }
+
 
         #endregion
 

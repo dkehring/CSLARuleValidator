@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Whc.UnitTesting")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("CSLA Unit Testing")]
+[assembly: AssemblyDescription("CSLA Unit Testing Framework")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("White Horse Consulting, Inc.")]
-[assembly: AssemblyProduct("Whc.UnitTesting")]
-[assembly: AssemblyCopyright("Copyright © 2015 White Horse Consulting, Inc.")]
+[assembly: AssemblyProduct("CSLA Unit Testing")]
+[assembly: AssemblyCopyright("Copyright © 2015-16 White Horse Consulting, Inc.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("4f00aeee-94f2-48e3-8bb0-6644484758e6")]
+[assembly: Guid("43fd2fd4-fbc1-4c04-8e27-495410562ea0")]
 
 // Version information for an assembly consists of the following four values:
 //

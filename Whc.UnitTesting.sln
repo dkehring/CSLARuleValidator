@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Whc.UnitTesting", "Whc.UnitTesting.csproj", "{682039E8-0F1E-40EB-8D7A-CFBAE470F76F}"
 EndProject
@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		readme.md = readme.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Whc.UnitTesting.Net4.6", "Whc.UnitTesting.Net4.6\Whc.UnitTesting.Net4.6.csproj", "{43FD2FD4-FBC1-4C04-8E27-495410562EA0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{682039E8-0F1E-40EB-8D7A-CFBAE470F76F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{682039E8-0F1E-40EB-8D7A-CFBAE470F76F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{682039E8-0F1E-40EB-8D7A-CFBAE470F76F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43FD2FD4-FBC1-4C04-8E27-495410562EA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43FD2FD4-FBC1-4C04-8E27-495410562EA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43FD2FD4-FBC1-4C04-8E27-495410562EA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43FD2FD4-FBC1-4C04-8E27-495410562EA0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

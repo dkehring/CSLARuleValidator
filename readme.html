@@ -3,11 +3,10 @@
 <h2>Base Classes</h2>
 <p><strong>TestBase</strong> - a template class for all test classes. Sets up virtual OnInitialize and OnCleaup methods.</p>
 <p><strong>TransationalTest</strong> - wraps a test in a transaction that will automatically rollback any database changes. Use this for integration tests that interact with the database.</p>
-<p><em>There are MSUnit and NUnit flavors of each of the above base classes.</em></p>
 <h2>RuleValidator</h2>
 <p>The <strong>RuleValidator</strong> class is the main class used to validate business rules. </p>
 <h3>Basic usage</h3>
-<p>Given an object that inherits from CSAL.Core.BusinessBase<T>:  
+<p>Given an object that inherits from CSLA.Core.BusinessBase<T>:  
 </p>
 <pre><code>using Whc.UnitTesting;
 
@@ -48,21 +47,24 @@ public class OrderTests : TestBase
 <li>CheckDoubleMinMaxRules</li>
 <li>CheckDoubleRequired</li>
 <li>CheckDecimalMinMaxRules</li>
-<li>CheckDoubleRequired</li>
+<li>CheckDecimalMaxExclusive - :new:</li>
+<li>CheckDecimalMinExclusive - :new:</li>
+<li>CheckDoubleMaxExclusive - :new:</li>
+<li>CheckDoubleMinExclusive - :new:</li>
 <li>CheckEmailMaxLength</li>
 <li>CheckEmailRequired</li>
-<li>CheckEnumRules<TEnum></li>
+<li>CheckEnumRules&lt;TEnum&gt;</li>
 <li>CheckGuidRules</li>
 <li>CheckIntMaxExclusive</li>
 <li>CheckIntMinExclusive</li>
 <li>CheckIntMinMaxRules</li>
 <li>CheckIntRequired</li>
-<li>CheckShortMaxExclusive - :new:</li>
-<li>CheckShortMinExclusive - :new:</li>
-<li>CheckShortMinMaxRules - :new:</li>
-<li>CheckLongMaxExclusive - :new:</li>
-<li>CheckLongMinExclusive - :new:</li>
-<li>CheckLongMinMaxRules - :new:</li>
+<li>CheckShortMaxExclusive</li>
+<li>CheckShortMinExclusive</li>
+<li>CheckShortMinMaxRules</li>
+<li>CheckLongMaxExclusive</li>
+<li>CheckLongMinExclusive</li>
+<li>CheckLongMinMaxRules</li>
 <li>CheckNumberRequired</li>
 <li>CheckObjectRequired</li>
 <li>CheckSmartDateRequired</li>
